@@ -1,17 +1,33 @@
-import Guide from '@/components/Guide';
-import { trim } from '@/utils/format';
 import { PageContainer } from '@ant-design/pro-components';
-import { useModel } from '@umijs/max';
+import { TabsProps } from 'antd/lib';
+import Field from './components/Field';
+import FieldConfig from './components/FieldConfig';
+import FieldType from './components/FieldType';
 import styles from './index.less';
 
+const items: TabsProps['items'] = [
+  {
+    key: '1',
+    label: '字段类型',
+    children: <FieldType />,
+  },
+  {
+    key: '2',
+    label: '字段',
+    children: <Field />,
+  },
+  {
+    key: '3',
+    label: '字段配置',
+    children: <FieldConfig />,
+  },
+];
+
 const HomePage: React.FC = () => {
-  const { name } = useModel('global');
   return (
-    <PageContainer ghost>
-      <div className={styles.container}>
-        <Guide name={trim(name)} />
-      </div>
-    </PageContainer>
+    <div className={styles.container}>
+      <PageContainer fixedHeader tabList={items}></PageContainer>
+    </div>
   );
 };
 
