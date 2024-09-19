@@ -1,7 +1,12 @@
 import TrimInput from '@/components/Trim/TrimInput';
-import { fieldControllerCreateType } from '@/services/configure/field';
+import {
+  fieldControllerCreateType,
+  fieldControllerUpdateType,
+} from '@/services/configure/field';
+import { isNil } from '@/utils/format';
 import { useRequest } from 'ahooks';
 import { Form, message, Modal } from 'antd';
+import { RuleObject, StoreValue } from 'rc-field-form/lib/interface';
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
 export enum DrawerType {
@@ -20,15 +25,44 @@ const defaultPayLoad = {
   type: DrawerType.create,
   data: {},
 };
+type Validator = (
+  rule: RuleObject,
+  value: StoreValue,
+  callback: (error?: string) => void,
+) => Promise<void | any> | void;
+
+function isJSONString(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+export const jsonStringValidator: Validator = (rule, value, callback) => {
+  if (value === '') callback();
+  if (!isJSONString(value)) {
+    callback('请输入合法的JSON字符串');
+  } else {
+    callback();
+  }
+};
 
 export default forwardRef<refType, any>((props, ref) => {
-  const { onSucess } = props;
+  const { onSuccess } = props;
   const [open, setOpen] = useState(false);
   const [payload, setPayload] = useState<payloadType>(defaultPayLoad);
   const [form] = Form.useForm();
-  const { loading, runAsync } = useRequest(fieldControllerCreateType, {
-    manual: true,
-  });
+  const { loading, runAsync } = useRequest(
+    payload.type === DrawerType.create
+      ? fieldControllerCreateType
+      : fieldControllerUpdateType,
+    {
+      manual: true,
+    },
+  );
+
   const handleOpen = useCallback(
     (payload: payloadType) => {
       if (payload.type === DrawerType.edit) {
@@ -48,15 +82,22 @@ export default forwardRef<refType, any>((props, ref) => {
 
   const handleSave = useCallback(async () => {
     const values = await form.validateFields();
-    const res = await runAsync(values);
+    let res;
+    if (!isNil(values?.id)) {
+      // 编辑
+      res = await runAsync({ id: values.id }, values);
+    } else {
+      // 新建
+      res = await runAsync(values);
+    }
     if (res.code === 200) {
-      onSucess?.();
+      onSuccess?.();
       message.success('操作成功');
       handleClose();
     } else {
       message.error(res?.message ?? '操作失败');
     }
-  }, [onSucess, handleClose, runAsync, form]);
+  }, [onSuccess, handleClose, runAsync, form]);
 
   useImperativeHandle(
     ref,
@@ -76,14 +117,31 @@ export default forwardRef<refType, any>((props, ref) => {
       okButtonProps={{ loading }}
     >
       <Form form={form} layout="horizontal" labelCol={{ span: 4 }}>
+        <Form.Item label="ID" name="id" hidden>
+          <TrimInput />
+        </Form.Item>
         <Form.Item label="字段名称" name="name" rules={[{ required: true }]}>
           <TrimInput />
         </Form.Item>
         <Form.Item label="字段值" name="type" rules={[{ required: true }]}>
           <TrimInput />
         </Form.Item>
-        <Form.Item label="附加项" name="options">
-          <TrimInput.TextArea />
+        <Form.Item
+          label="附加项"
+          name="options"
+          rules={[{ validator: jsonStringValidator }]}
+        >
+          <TrimInput.TextArea
+            autoSize={{ minRows: 6, maxRows: 12 }}
+            onBlur={(e) => {
+              const value = e.target.value;
+              try {
+                e.target.value = JSON.stringify(JSON.parse(value), null, 2);
+              } catch (e) {
+                console.log('非法的JSON字符串');
+              }
+            }}
+          />
         </Form.Item>
       </Form>
     </Modal>

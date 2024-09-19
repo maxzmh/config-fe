@@ -10,10 +10,10 @@ export const withNoSpace: WithNoSpace = (Component) => (props) => {
   const { onChange, value, onBlur } = props;
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.value = e.target.value.trim();
+    onBlur?.(e);
     if (value !== e.target.value) {
       onChange?.(e);
     }
-    onBlur?.(e);
   };
   return <Component {...props} onBlur={handleBlur} />;
 };

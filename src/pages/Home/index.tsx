@@ -1,4 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
+import { Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import Field from './components/Field';
 import FieldConfig from './components/FieldConfig';
@@ -26,7 +27,9 @@ const items: TabsProps['items'] = [
 const HomePage: React.FC = () => {
   return (
     <div className={styles.container}>
-      <PageContainer fixedHeader tabList={items}></PageContainer>
+      <PageContainer>
+        <Tabs defaultActiveKey="1" items={items} />
+      </PageContainer>
     </div>
   );
 };
