@@ -1,7 +1,7 @@
+import TrimInput from '@/components/Trim/TrimInput';
 import { fieldControllerCreateType } from '@/services/configure/field';
 import { useRequest } from 'ahooks';
-import { Form, Input, message, Modal } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
+import { Form, message, Modal } from 'antd';
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
 export enum DrawerType {
@@ -77,13 +77,13 @@ export default forwardRef<refType, any>((props, ref) => {
     >
       <Form form={form} layout="horizontal" labelCol={{ span: 4 }}>
         <Form.Item label="字段名称" name="name" rules={[{ required: true }]}>
-          <Input />
+          <TrimInput />
         </Form.Item>
         <Form.Item label="字段值" name="type" rules={[{ required: true }]}>
-          <Input />
+          <TrimInput />
         </Form.Item>
         <Form.Item label="附加项" name="options">
-          <TextArea />
+          <TrimInput.TextArea />
         </Form.Item>
       </Form>
     </Modal>
