@@ -1,5 +1,4 @@
 import { Select, SelectProps } from 'antd';
-import _ from 'lodash';
 import React from 'react';
 
 const TrimTagSelect: React.FC<SelectProps> = (props) => {
@@ -7,7 +6,7 @@ const TrimTagSelect: React.FC<SelectProps> = (props) => {
 
   const handleChange = (_value: any, options: any) => {
     let values = Array.isArray(_value) ? _value : [_value];
-    values = _.map(values, (value) => {
+    values = values.map((value) => {
       return value.trim ? value.trim() : value;
     });
     onChange?.(values, options);

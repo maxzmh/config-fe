@@ -1,17 +1,20 @@
 import TrimInput from '@/components/Trim/TrimInput';
 import {
+  useSearchFieldType,
+  useUserGroups,
+} from '@/pages/Home/components/CreateField/hooks';
+import {
   fieldControllerCreateType,
   fieldControllerUpdateType,
 } from '@/services/configure/field';
 import { isNil } from '@/utils/format';
 import { useRequest } from 'ahooks';
-import { Form, message, Modal } from 'antd';
-import { RuleObject, StoreValue } from 'rc-field-form/lib/interface';
+import { Form, message, Modal, Select } from 'antd';
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
 export enum DrawerType {
-  create = '新建字段类型',
-  edit = '编辑字段类型',
+  create = '新建字段',
+  edit = '编辑字段',
 }
 
 export type payloadType = { type: DrawerType; data: Record<string, any> };
@@ -25,34 +28,17 @@ const defaultPayLoad = {
   type: DrawerType.create,
   data: {},
 };
-type Validator = (
-  rule: RuleObject,
-  value: StoreValue,
-  callback: (error?: string) => void,
-) => Promise<void | any> | void;
-
-function isJSONString(str) {
-  try {
-    JSON.parse(str);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-export const jsonStringValidator: Validator = (rule, value, callback) => {
-  if (value !== '' && !isNil(value) && !isJSONString(value)) {
-    callback('请输入合法的JSON字符串');
-  } else {
-    callback();
-  }
-};
 
 export default forwardRef<refType, any>((props, ref) => {
   const { onSuccess } = props;
   const [open, setOpen] = useState(false);
   const [payload, setPayload] = useState<payloadType>(defaultPayLoad);
   const [form] = Form.useForm();
+
+  const fieldTypeProps = useSearchFieldType();
+
+  const userGroupsProps = useUserGroups();
+
   const { loading, runAsync } = useRequest(
     payload.type === DrawerType.create
       ? fieldControllerCreateType
@@ -109,37 +95,44 @@ export default forwardRef<refType, any>((props, ref) => {
   return (
     <Modal
       title={payload.type}
-      width={600}
+      width={660}
       open={open}
       onCancel={handleClose}
       onOk={handleSave}
       okButtonProps={{ loading }}
     >
-      <Form form={form} layout="horizontal" labelCol={{ span: 4 }}>
+      <Form form={form} layout="horizontal" labelCol={{ span: 5 }}>
         <Form.Item label="ID" name="id" hidden>
           <TrimInput />
         </Form.Item>
-        <Form.Item label="字段名称" name="name" rules={[{ required: true }]}>
-          <TrimInput />
+        <Form.Item label="字段名称" name="cnName" rules={[{ required: true }]}>
+          <TrimInput placeholder="请输入字段名称" />
         </Form.Item>
-        <Form.Item label="字段值" name="type" rules={[{ required: true }]}>
-          <TrimInput />
+        <Form.Item label="字段值" name="key" rules={[{ required: true }]}>
+          <TrimInput placeholder="请输入字段值" />
         </Form.Item>
         <Form.Item
-          label="附加项"
-          name="options"
-          rules={[{ validator: jsonStringValidator }]}
+          label="字段类型"
+          name="fieldType"
+          rules={[{ required: true }]}
         >
-          <TrimInput.TextArea
-            autoSize={{ minRows: 6, maxRows: 12 }}
-            onBlur={(e) => {
-              const value = e.target.value;
-              try {
-                e.target.value = JSON.stringify(JSON.parse(value), null, 2);
-              } catch (e) {
-                console.log('非法的JSON字符串');
-              }
-            }}
+          <Select
+            showSearch
+            placeholder="请选择字段类型"
+            {...fieldTypeProps}
+            filterOption={false}
+          />
+        </Form.Item>
+        <Form.Item
+          label="所属分组"
+          name="groupIds"
+          rules={[{ required: true }]}
+        >
+          <Select
+            filterOption={false}
+            mode="multiple"
+            {...userGroupsProps}
+            placeholder="请选择所属分组"
           />
         </Form.Item>
       </Form>

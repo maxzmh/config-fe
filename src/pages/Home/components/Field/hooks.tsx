@@ -13,27 +13,17 @@ export const useColumns = ({ actionRef, modalRef }) => {
   return useMemo<ProColumns<API.FieldType>[]>(
     () => [
       {
-        title: '名称',
-        dataIndex: 'name',
+        title: '字段名称',
+        dataIndex: 'cnName',
       },
       {
-        title: '类型',
-        dataIndex: 'type',
+        title: '字段值',
+        dataIndex: 'key',
       },
-
       {
-        title: '额外配置项',
+        title: '所属用户分组',
         hideInSearch: true,
         dataIndex: 'options',
-      },
-      {
-        title: '修改时间',
-        width: 180,
-        hideInSearch: true,
-        dataIndex: 'updatedAt',
-        render: (value: string) => {
-          return new Date(value).toLocaleString();
-        },
       },
       {
         title: '操作',
