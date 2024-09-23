@@ -1,16 +1,16 @@
-import { DrawerType } from '@/pages/Home/components/CreateFieldType';
-import { fieldControllerRemoveType } from '@/services/configure/field';
+import { DrawerType } from '@/pages/Home/components/CreateField';
+import { fieldControllerRemove } from '@/services/configure/field';
 import { ProColumns } from '@ant-design/pro-components';
 import { useRequest } from 'ahooks';
 import { Button, Popconfirm, TableProps } from 'antd';
 import { useCallback, useMemo, useState } from 'react';
 
 export const useColumns = ({ actionRef, modalRef }) => {
-  const { runAsync } = useRequest(fieldControllerRemoveType, {
+  const { runAsync } = useRequest(fieldControllerRemove, {
     manual: true,
   });
 
-  return useMemo<ProColumns<API.FieldType>[]>(
+  return useMemo<ProColumns<API.Field>[]>(
     () => [
       {
         title: '字段名称',
@@ -21,9 +21,10 @@ export const useColumns = ({ actionRef, modalRef }) => {
         dataIndex: 'key',
       },
       {
-        title: '所属用户分组',
+        title: '字段类型',
         hideInSearch: true,
-        dataIndex: 'options',
+        dataIndex: 'fieldType',
+        render: (value) => `${value?.name} (${value.type})`,
       },
       {
         title: '操作',
@@ -31,6 +32,7 @@ export const useColumns = ({ actionRef, modalRef }) => {
         width: 160,
         dataIndex: 'id',
         render: (value, record) => {
+          console.log(record);
           return (
             <>
               <Button
@@ -45,7 +47,7 @@ export const useColumns = ({ actionRef, modalRef }) => {
                 编辑
               </Button>
               <Popconfirm
-                title={`确定删除字段类型【${record.name}】`}
+                title={`确定删除字段【${record.cnName}】`}
                 onConfirm={async () => {
                   await runAsync({ ids: [value] });
                   actionRef.current?.reload?.();
@@ -72,7 +74,7 @@ export const useRowsSelect = ({ actionRef }) => {
     [],
   );
 
-  const { runAsync } = useRequest(fieldControllerRemoveType, {
+  const { runAsync } = useRequest(fieldControllerRemove, {
     manual: true,
   });
 

@@ -1,11 +1,8 @@
 import TrimInput from '@/components/Trim/TrimInput';
+import { useSearchFieldType } from '@/pages/Home/components/CreateField/hooks';
 import {
-  useSearchFieldType,
-  useUserGroups,
-} from '@/pages/Home/components/CreateField/hooks';
-import {
-  fieldControllerCreateType,
-  fieldControllerUpdateType,
+  fieldControllerCreate,
+  fieldControllerUpdate,
 } from '@/services/configure/field';
 import { isNil } from '@/utils/format';
 import { useRequest } from 'ahooks';
@@ -37,12 +34,12 @@ export default forwardRef<refType, any>((props, ref) => {
 
   const fieldTypeProps = useSearchFieldType();
 
-  const userGroupsProps = useUserGroups();
+  // const userGroupsProps = useUserGroups();
 
   const { loading, runAsync } = useRequest(
     payload.type === DrawerType.create
-      ? fieldControllerCreateType
-      : fieldControllerUpdateType,
+      ? fieldControllerCreate
+      : fieldControllerUpdate,
     {
       manual: true,
     },
@@ -51,12 +48,18 @@ export default forwardRef<refType, any>((props, ref) => {
   const handleOpen = useCallback(
     (payload: payloadType) => {
       if (payload.type === DrawerType.edit) {
-        form.setFieldsValue(payload?.data || {});
+        fieldTypeProps.onSearch(payload?.data?.fieldType?.name);
+        form.setFieldsValue(
+          {
+            ...payload?.data,
+            fieldTypeId: payload?.data?.fieldType?.id,
+          } || {},
+        );
       }
       setPayload(payload);
       setOpen(true);
     },
-    [setPayload, setOpen, form],
+    [setPayload, setOpen, form, fieldTypeProps],
   );
 
   const handleClose = useCallback(() => {
@@ -113,28 +116,29 @@ export default forwardRef<refType, any>((props, ref) => {
         </Form.Item>
         <Form.Item
           label="字段类型"
-          name="fieldType"
+          name="fieldTypeId"
           rules={[{ required: true }]}
         >
           <Select
             showSearch
-            placeholder="请选择字段类型"
+            allowClear
+            placeholder="输入字段类型名称或类型"
             {...fieldTypeProps}
             filterOption={false}
           />
         </Form.Item>
-        <Form.Item
-          label="所属分组"
-          name="groupIds"
-          rules={[{ required: true }]}
-        >
-          <Select
-            filterOption={false}
-            mode="multiple"
-            {...userGroupsProps}
-            placeholder="请选择所属分组"
-          />
-        </Form.Item>
+        {/*<Form.Item*/}
+        {/*  label="所属分组"*/}
+        {/*  name="groupIds"*/}
+        {/*  rules={[{ required: true }]}*/}
+        {/*>*/}
+        {/*  <Select*/}
+        {/*    filterOption={false}*/}
+        {/*    mode="multiple"*/}
+        {/*    {...userGroupsProps}*/}
+        {/*    placeholder="请选择所属分组"*/}
+        {/*  />*/}
+        {/*</Form.Item>*/}
       </Form>
     </Modal>
   );

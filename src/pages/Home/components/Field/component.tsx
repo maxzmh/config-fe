@@ -3,7 +3,7 @@ import CreateField, {
   DrawerType,
   refType,
 } from '@/pages/Home/components/CreateField';
-import { fieldControllerFindTypes } from '@/services/configure/field';
+import { fieldControllerFindAll } from '@/services/configure/field';
 import { ActionType } from '@ant-design/pro-components';
 import { Button, Popconfirm, Space } from 'antd';
 import { useRef, useState } from 'react';
@@ -47,7 +47,7 @@ export default function Field() {
           (
             <Space>
               <Popconfirm
-                title="确定删除所选择字段类型？"
+                title="确定删除所选择字段？"
                 onConfirm={handleDelete}
                 disabled={!rowSelection.selectedRowKeys.length}
               >
@@ -70,7 +70,7 @@ export default function Field() {
           ) as any
         }
         columns={columns}
-        request={fieldControllerFindTypes}
+        request={fieldControllerFindAll}
         rowKey="id"
       />
       <CreateField
